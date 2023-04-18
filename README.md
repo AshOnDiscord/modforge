@@ -44,6 +44,3 @@ pnpm build
 ```sh
 pnpm lint
 ```
-# modforge
-# modforge
-# modforge
