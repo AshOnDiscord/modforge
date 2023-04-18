@@ -8,26 +8,27 @@ let devs = ref([])
 let versions = ref([])
 
 const asyncCode = async () => {
-  mod.value = await (
-    await fetch(`https://api.modrinth.com/v2/project/${useRoute().params.modSlug}`)
-  ).json()
+  ;(async () => {
+    mod.value = await (
+      await fetch(`https://api.modrinth.com/v2/project/${useRoute().params.modSlug}`)
+    ).json()
 
-  devs.value = await (
-    await fetch(`https://api.modrinth.com/v2/team/${mod.value.team}/members`)
-  ).json()
+    devs.value = await (
+      await fetch(`https://api.modrinth.com/v2/team/${mod.value.team}/members`)
+    ).json()
 
-  console.log(JSON.parse(JSON.stringify(mod.value)))
-  console.log(devs)
+    console.log(JSON.parse(JSON.stringify(mod.value)))
+    console.log(devs)
+  })()
+  ;(async () => {
+    versions.value = await (
+      await fetch(
+        `https://api.modrinth.com/v2/project/${useRoute().params.modSlug}/version?featured=true`
+      )
+    ).json()
 
-  const versionsFetch = await (
-    await fetch(
-      `https://api.modrinth.com/v2/project/${useRoute().params.modSlug}/version?featured=true`
-    )
-  ).json()
-
-  versions.value = versionsFetch
-
-  console.log(versions.value)
+    console.log(versions.value)
+  })()
 }
 
 const modType = computed(() => {
