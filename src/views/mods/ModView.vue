@@ -45,10 +45,19 @@ asyncCode()
 <template>
   <div class="grid grid-cols-[max-content,auto,max-content] gap-4">
     <img :src="mod.icon_url" class="bg-white w-40 h-40 rounded-2xl" />
-    <div>
-      <h1 class="text-4xl">{{ mod.title }}</h1>
-      <h2>{{ modType }}</h2>
-      <p>{{ mod.description }}</p>
+    <div class="pr-8 flex flex-col justify-between">
+      <div>
+        <h1 class="text-4xl font-semibold text-white">{{ mod.title }}</h1>
+        <h2 class="text-xl text-[hsla(160,100%,37%,1)]">{{ modType }}</h2>
+        <p>{{ mod.description }}</p>
+      </div>
+      <div>
+        <a :href="`https://choosealicense.com/licenses/${mod.license.id.toLowerCase()}/`" class="mt-2">{{ mod.license.name }}</a>
+        <div class="flex gap-4">
+          <p><span class="text-[hsla(160,100%,37%,1)] font-semibold">{{ mod.downloads }}</span> downloads</p>
+          <p><span class="text-[hsla(160,100%,37%,1)] font-semibold">{{ mod.followers }}</span> followers</p>
+        </div>
+      </div>
     </div>
     <div>
       <div class="flex flex-col items-end border-r-4 pr-4 border-[hsla(160,100%,37%,1)]">
@@ -59,14 +68,15 @@ asyncCode()
       </div>
     </div>
   </div>
-  <vue-markdown :source="mod.body"/>
+  <vue-markdown class="prose dark:prose-invert prose-a:text-[hsla(160,100%,37%,1)] my-8 max-w-none" v-if="mod.body" :source="mod.body.toString()"/>
   <!-- <p>{{ mod.body }}</p> -->
-  <ul class="flex flex-col gap-4">
+  <h1 class="text-2xl mb-4 text-white font-semibold">Team Members</h1>
+  <ul class="flex gap-4 mb-6">
     <li v-for="dev in devs" :key="dev.id" class="flex gap-2 items-center">
       <img :src="dev.user.avatar_url" alt="" class="w-12 h-12 rounded-md" />
       <div>
         <RouterLink :to="`https://api.modrinth.com/v2/user/${dev.user.id}`">{{
-          dev.user.name
+          dev.user.name || dev.user.username
         }}</RouterLink>
         <h2>{{ dev.role }}</h2>
       </div>
