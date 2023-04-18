@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import VueMarkdown from 'vue-markdown-render'
 
 let mod = ref({})
 let devs = ref([])
@@ -58,7 +59,8 @@ asyncCode()
       </div>
     </div>
   </div>
-  <p>{{ mod.body }}</p>
+  <vue-markdown :source="mod.body"/>
+  <!-- <p>{{ mod.body }}</p> -->
   <ul class="flex flex-col gap-4">
     <li v-for="dev in devs" :key="dev.id" class="flex gap-2 items-center">
       <img :src="dev.user.avatar_url" alt="" class="w-12 h-12 rounded-md" />
