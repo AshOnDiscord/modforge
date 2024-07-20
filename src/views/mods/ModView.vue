@@ -1,17 +1,28 @@
 <script setup lang="ts">
-import { computed, ref, version } from 'vue'
+import { computed, ref, type Ref, version } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import VueMarkdown from 'vue-markdown-render'
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkHtml from 'remark-html';
 
-let mod = ref({})
+let mod: Ref<any> = ref({})
 let devs = ref([])
 let versions = ref([])
+let mdHTML = ref('')
 
 const asyncCode = async () => {
   ;(async () => {
     mod.value = await (
       await fetch(`https://api.modrinth.com/v2/project/${useRoute().params.modSlug}`)
     ).json()
+
+    // mdHTML.value = await remark().process(mod.value.body)
+    mdHTML.value = String(unified()
+      .use(remarkParse)
+      .use(remarkHtml, {
+        sanitize: false,
+      })
+      .processSync(mod.value.body))
 
     devs.value = await (
       await fetch(`https://api.modrinth.com/v2/team/${mod.value.team}/members`)
@@ -21,11 +32,25 @@ const asyncCode = async () => {
     console.log(devs)
   })()
   ;(async () => {
-    versions.value = await (
+    const ver = await (
       await fetch(
         `https://api.modrinth.com/v2/project/${useRoute().params.modSlug}/version?featured=true`
       )
     ).json()
+
+    // ver.map(async (version) => {
+    //   version.files = await fetch(
+    //     `https://api.modrinth.com/v2/version/${version.id}`
+    //   ).json().files
+    // })
+
+    for (const version of ver) {
+      version.files = await (
+        await fetch(`https://api.modrinth.com/v2/version/${version.id}`)
+      ).json()
+    }
+
+    versions.value = ver
 
     console.log(versions.value)
   })()
@@ -67,9 +92,9 @@ asyncCode()
           </div>
           <div>
             <a
-              :href="`https://choosealicense.com/licenses/${mod.license.id.toLowerCase()}/`"
+              :href="`https://choosealicense.com/licenses/${mod.license?.id}/`"
               class="mt-2"
-              >{{ mod.license.name }}</a
+              >{{ mod.license?.name || mod.license?.id.replaceAll("-", " ") }}</a
             >
             <div class="flex gap-4">
               <p>
@@ -92,11 +117,11 @@ asyncCode()
           </div>
         </div>
       </div>
-      <vue-markdown
+      <div
         class="prose dark:prose-invert prose-a:text-[hsla(160,100%,37%,1)] my-8 max-w-none"
         v-if="mod.body"
-        :source="mod.body.toString()"
-      />
+        v-html="mdHTML"
+      ></div>
       <!-- <p>{{ mod.body }}</p> -->
       <h1 class="text-2xl mb-4 text-white font-semibold">Team Members</h1>
       <ul class="flex gap-4 mb-6">
@@ -110,15 +135,15 @@ asyncCode()
           </div>
         </li>
       </ul>
-      <h1>Mod {{ $route.params.modSlug }}</h1>
-      <div v-if="mod">{{ mod }}</div>
+      <!-- <h1>Mod {{ $route.params.modSlug }}</h1> -->
+      <!-- <div v-if="mod">{{ mod }}</div> -->
     </div>
 
     <div>
       <aside class="bg-[--color-background-soft] w-64 rounded-2xl p-4">
         <ul v-if="versions" class="flex flex-col gap-4">
           <li v-for="version in versions" :key="version.id">
-            <a :href="`https://api.modrinth.com/v2/version/${version.id}`">{{ version.name }}</a>
+            <a :href="version.files?.files?.[0]?.url">{{ version.name }}</a>
             <p>{{ version.loaders.join(', ') }} {{ version.game_versions.join(', ') }}</p>
           </li>
         </ul>
