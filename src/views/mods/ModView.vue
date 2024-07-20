@@ -6,8 +6,8 @@ import remarkParse from 'remark-parse';
 import remarkHtml from 'remark-html';
 
 let mod: Ref<any> = ref({})
-let devs = ref([])
-let versions = ref([])
+let devs: Ref<any[]> = ref([])
+let versions: Ref<any[]> = ref([])
 let mdHTML = ref('')
 
 const asyncCode = async () => {
