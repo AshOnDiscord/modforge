@@ -10,7 +10,7 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
-  base: "https://ashondiscord.github.io/modforge/",
+  base: "/modforge/",
   resolve: {
 
     alias: {
